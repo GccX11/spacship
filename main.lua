@@ -8,9 +8,10 @@ flame_size = 40
 ast_x = nil
 ast_y = nil
 x = 130
-y = math.floor(love.window.getHeight() / 2)
+y = math.floor(love.graphics.getHeight() / 2)
 
 score = 0
+max_score = 0
 lose = false
 
 last_ast_time = 0
@@ -27,7 +28,7 @@ function love.update(dt)
 		end
 	end
 	if love.keyboard.isDown("down") then
-		if y + ship_speed + ship_height < love.window.getHeight() then
+		if y + ship_speed + ship_height < love.graphics.getHeight() then
 			y = y + ship_speed
 		end
 	end
@@ -43,14 +44,18 @@ function love.update(dt)
 	if ast_x == nil and ast_y == nil then
 		if love.timer.getTime() - last_ast_time - time_between_asts < 100 then
 			ast_size = math.floor(love.math.random() * 60) + 50
-			ast_x = love.window.getWidth()
-			ast_y = math.floor(love.math.random() * (love.window.getHeight() - ast_size))
+			ast_x = love.graphics.getWidth()
+			ast_y = math.floor(love.math.random() * (love.graphics.getHeight() - ast_size))
 			last_ast_time = love.timer.getTime()
 			time_between_asts = (love.math.random() * 10) * 1000 + 1000
 		end
 	else
 		if check_collision(x,y,ship_width,ship_height, ast_x,ast_y,ast_size,ast_size) then
-			lose = true
+			-- lose = true
+      if score > max_score then
+        max_score = score
+      end
+      score = 0
 		end
 		if ast_x - ast_speed + ast_size > 0 then
 			ast_x = ast_x - ast_speed
@@ -59,7 +64,10 @@ function love.update(dt)
 			ast_x = nil
 			ast_y = nil
 			if not lose then
-				score = score + 1
+        score = score + 1
+        if score > max_score then
+          max_score = score
+        end
 			end
 		end
 	end
@@ -68,6 +76,7 @@ end
 function love.draw()
 	if not lose then
 		love.graphics.print(score, 10, 10, 0, 2, 2)
+    love.graphics.print(max_score, 100, 10, 0, 2, 2)
 
 		if ast_x ~= nil and ast_y ~= nil then
 			love.graphics.setColor(0, 0, 255)
@@ -79,8 +88,8 @@ function love.draw()
 		love.graphics.setColor(0, 255, 0)
 		love.graphics.rectangle("fill", x, y, ship_width, ship_height) --ship
 	else
-		love.graphics.print("You Lose - Score "..score, love.window.getWidth()/2-120, 
-			love.window.getHeight()/2-30, 0, 2, 2)
+		love.graphics.print("You Lose - Score "..score, love.graphics.getWidth()/2-120, 
+			love.graphics.getHeight()/2-30, 0, 2, 2)
 
 	end
 end
